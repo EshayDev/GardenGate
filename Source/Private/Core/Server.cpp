@@ -105,16 +105,12 @@ DWORD WINAPI Server::PortForwardingThread()
     return 0;
 }
 
-void Server::Start(const char* level, const char* mode, int maxPlayers, SocketSpawnInfo info)
+void Server::Start(const char* level, const char* mode, int maxPlayers)
 {
     EnableGameHooks();
 
     NetworkSettings* networkSettings = Settings<NetworkSettings>("Network");
-    networkSettings->MaxClientCount = maxPlayers;
     networkSettings->ServerPort = 25200;
-
-    NetObjectSystemSettings* netObjectSettings = Settings<NetObjectSystemSettings>("NetObjectSystem");
-    netObjectSettings->MaxServerConnectionCount = maxPlayers;
 
     ClientSettings* clientSettings = Settings<ClientSettings>("Client");
     clientSettings->FastExit = true;
@@ -128,7 +124,6 @@ void Server::Start(const char* level, const char* mode, int maxPlayers, SocketSp
     strcat_s(gameMode, strlen(mode) + 11, mode);
     gameSettings->DefaultLayerInclusion = gameMode;
 
-    m_socketSpawnInfo = info;
     g_program->ChangeClientState(ClientState_Startup);
 
     m_running = true;

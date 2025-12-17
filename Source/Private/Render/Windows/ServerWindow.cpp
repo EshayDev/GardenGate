@@ -55,33 +55,32 @@ void ServerWindow::Draw()
 {
     ImGui::Begin("SERVER SETTINGS", &m_isEnabled, ImGuiWindowFlags_AlwaysAutoResize);
 
-    static GameMode currentMode = s_game_modes[0]; // Default to first mode
-    static GameLevel currentLevel = { "", "" };
+    static GameMode* currentMode = &s_game_modes[0]; // pointer to GameMode
+    static GameLevel* currentLevel = nullptr;        // pointer to GameLevel
 
-    // Initialize currentLevel if not already
-    if (currentLevel.level[0] == '\0')
+    // Initialize currentLevel if not set
+    if (!currentLevel)
     {
-        if (!currentMode.levelOverrides.empty())
-            currentLevel = currentMode.levelOverrides[0];
-        else if (!currentMode.levels.empty())
-            currentLevel = { currentMode.levels[0], currentMode.levels[0] };
+        if (!currentMode->levelOverrides.empty())
+            currentLevel = &currentMode->levelOverrides[0];
+        else if (!currentMode->levels.empty())
+            currentLevel = new GameLevel{ currentMode->levels[0], currentMode->levels[0] }; // make sure it's valid
     }
 
     ImGui::Text("GAME MODE:");
-    if (ImGui::BeginCombo("##modeCombo", currentMode.name))
+    if (ImGui::BeginCombo("##modeCombo", currentMode->name))
     {
         for (int n = 0; n < sizeof(s_game_modes) / sizeof(GameMode); n++)
         {
-            bool selected = (strcmp(currentMode.mode, s_game_modes[n].mode) == 0);
+            bool selected = (currentMode == &s_game_modes[n]);
             if (ImGui::Selectable(s_game_modes[n].name, selected))
             {
-                currentMode = s_game_modes[n];
-
-                // Update currentLevel when mode changes
-                if (!currentMode.levelOverrides.empty())
-                    currentLevel = currentMode.levelOverrides[0];
-                else if (!currentMode.levels.empty())
-                    currentLevel = { currentMode.levels[0], currentMode.levels[0] };
+                currentMode = &s_game_modes[n];
+                // Reset level to first valid one
+                if (!currentMode->levelOverrides.empty())
+                    currentLevel = &currentMode->levelOverrides[0];
+                else if (!currentMode->levels.empty())
+                    currentLevel = new GameLevel{ currentMode->levels[0], currentMode->levels[0] };
             }
             if (selected)
                 ImGui::SetItemDefaultFocus();
@@ -90,17 +89,14 @@ void ServerWindow::Draw()
     }
 
     ImGui::Text("LEVEL:");
-    if (ImGui::BeginCombo("##levelCombo", currentLevel.name))
+    if (ImGui::BeginCombo("##levelCombo", currentLevel->name))
     {
-        for (size_t i = 0; i < currentMode.levels.size(); i++)
+        for (size_t i = 0; i < currentMode->levels.size(); i++)
         {
-            // GetGameLevel safely returns a GameLevel by value
-            GameLevel level = GetGameLevel(currentMode, currentMode.levels[i]);
-
-            bool selected = (strcmp(currentLevel.level, level.level) == 0);
-            if (ImGui::Selectable(level.name, selected))
-                currentLevel = level;
-
+            GameLevel tempLevel = GetGameLevel(*currentMode, currentMode->levels[i]);
+            bool selected = (strcmp(currentLevel->level, tempLevel.level) == 0);
+            if (ImGui::Selectable(tempLevel.name, selected))
+                currentLevel = new GameLevel{ tempLevel.level, tempLevel.name }; // safe copy
             if (selected)
                 ImGui::SetItemDefaultFocus();
         }
@@ -110,12 +106,32 @@ void ServerWindow::Draw()
     static int maxPlayers = 4;
     ImGui::SliderInt("Max Players", &maxPlayers, 1, 8);
 
-    if (ImGui::Button("Start Server"))
+    static int errorTime = 0;
+    if (!g_program->m_server->m_running)
     {
-        if (currentLevel.level[0] != '\0' && currentMode.mode[0] != '\0')
+        if (ImGui::Button("Start Server"))
         {
-            g_program->m_server->Start(currentLevel.level, currentMode.mode, maxPlayers, SocketSpawnInfo(false, "", "Test Server"));
+            if (currentLevel && currentMode)
+            {
+                g_program->m_server->Start(currentLevel->level, currentMode->mode, maxPlayers);
+            }
+            else
+            {
+                errorTime = 1000;
+            }
         }
+
+        if (errorTime > 0 && ImGui::IsItemHovered())
+        {
+            ImGui::BeginTooltip();
+            ImGui::Text("Please select a valid game mode and level.");
+            ImGui::EndTooltip();
+            errorTime--;
+        }
+    }
+    else
+    {
+        ImGui::Text("The server is running. Stop it to change settings.");
     }
 
     ImGui::End();
