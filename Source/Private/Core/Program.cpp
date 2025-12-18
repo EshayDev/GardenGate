@@ -124,7 +124,7 @@ __int64 ClientStateChangeHk(__int64 inst, ClientState currentClientState, Client
             server->Stop();
 
             GameSettings* gameSettings = Settings<GameSettings>("Game");
-            gameSettings->Level = "Levels/FrontEnd/FrontEnd";
+            gameSettings->Level = "_pvz/Levels/Level_Frontend_Gen3/Level_Frontend_Gen3";
             gameSettings->DefaultLayerInclusion = "";
         }
         else
