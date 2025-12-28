@@ -9,7 +9,7 @@
 #include <Windows.h>
 #include <string>
 
-#define OFFSET_SERVERGAMECONTEXT_INSTANCE 0x143EC7238
+#define OFFSET_SERVERGAMECONTEXT_INSTANCE 0x141C3D7C0
 
 namespace Kyber
 {

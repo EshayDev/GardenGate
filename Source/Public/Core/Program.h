@@ -10,7 +10,7 @@
 
 #define OFFSET_GLOBAL_CLIENT 0x143DCB9D0
 #define OFFSET_GLOBAL_SETTINGS_MANAGER 0x141eac0b0
-#define OFFSET_GET_CLIENT_INSTANCE 0x140415830 // real, literally 1 : 1 with BF2
+#define OFFSET_GET_CLIENT_INSTANCE 0x140067E20 // ughh 
 
 namespace Kyber
 {
@@ -34,7 +34,9 @@ public:
 
     __int64 ChangeClientState(ClientState currentClientState)
     {
-        return m_clientState;
+        return ClientStateChangeHk(
+            *reinterpret_cast<__int64*>(*reinterpret_cast<__int64*>(((__int64 (*)(void))OFFSET_GET_CLIENT_INSTANCE)() + 0x28) + 0x8),
+            currentClientState, m_clientState);
     }
 
     HMODULE m_module;

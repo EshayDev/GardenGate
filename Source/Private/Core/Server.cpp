@@ -304,11 +304,7 @@ void Server::InitializeGamePatches()
 
 void Server::InitializeGameSettings()
 {
-    WSGameSettings* wsSettings = Settings<WSGameSettings>("Whiteshark");
-    wsSettings->AutoBalanceTeamsOnNeutral = true;
 
-    AutoPlayerSettings* aiSettings = Settings<AutoPlayerSettings>("AutoPlayers");
-    aiSettings->AllowSuicide = false;
 }
 
 void Server::Stop()

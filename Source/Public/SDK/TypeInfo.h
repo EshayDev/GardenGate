@@ -8,30 +8,24 @@ namespace Kyber
 {
 enum ClientState
 {
-    ClientState_WaitingForStaticBundleLoad,
-
-    ClientState_LoadProfileOptions,
-    ClientState_LostConnection,
-    ClientState_WaitingForUnload,
-    ClientState_Startup,
-    ClientState_StartServer,
-
-    ClientState_WaitingForLevel,
-    ClientState_StartLoadingLevel,
-    ClientState_WaitingForLevelLoaded,
-    ClientState_WaitingForLevelLink,
-    ClientState_LevelLinked,
-    ClientState_WaitingForGhosts,
-
-    ClientState_Ingame,
-    ClientState_LeaveIngame,
-
-    ClientState_ConnectToServer,
-
-    ClientState_ShuttingDown,
-    ClientState_Shutdown,
-
-    ClientState_None,
+    ClientState_WaitingForStaticBundleLoad = 0,
+    ClientState_LoadProfileOptions = 1,
+    ClientState_LostConnection = 2,
+    ClientState_WaitingForUnload = 3,
+    ClientState_Startup = 4,
+    ClientState_StartServer = 5,
+    ClientState_WaitingForLevel = 6,
+    ClientState_StartLoadingLevel = 7,
+    ClientState_WaitingForLevelLoaded = 8,
+    ClientState_WaitingForLevelLink = 9,
+    ClientState_LevelLinked = 10,
+    ClientState_WaitingForGhosts = 11,
+    ClientState_Ingame = 12,
+    ClientState_LeaveIngame = 13,
+    ClientState_ConnectToServer = 14,
+    ClientState_ShuttingDown = 15,
+    ClientState_Shutdown = 16,
+    ClientState_None = 17
 };
 enum SecureReason
 {
@@ -299,44 +293,28 @@ public:
 class NetworkSettings : public SystemSettings
 {
 public:
-    uint32_t ProtocolVersion;                        // 0x0020
-    char _0x0024[4];                                 // 0x0024
-    char* TitleId;                                   // 0x0028
-    uint32_t ClientPort;                             // 0x0030
-    uint32_t ServerPort;                             // 0x0034
-    uint32_t MaxGhostCount;                          // 0x0038
-    uint32_t MaxClientToServerGhostCount;            // 0x003C
-    uint32_t MaxClientCount;                         // 0x0040
-    uint32_t MaxClientFrameSize;                     // 0x0044
-    uint32_t MaxServerFrameSize;                     // 0x0048
-    uint32_t MaxNumVoipPeers;                        // 0x004C
-    char* ServerAddress;                             // 0x0050
-    char* ClientConnectionDebugFilePrefix;           // 0x0058
-    char* ServerConnectionDebugFilePrefix;           // 0x0060
-    float SinglePlayerTimeNudgeBias;                 // 0x0068
-    float SinglePlayerTimeNudge;                     // 0x006C
-    float MemorySocketTimeNudgeBias;                 // 0x0070
-    float MemorySocketTimeNudge;                     // 0x0074
-    float LocalHostTimeNudgeBias;                    // 0x0078
-    float LocalHostTimeNudge;                        // 0x007C
-    float DefaultTimeNudgeBias;                      // 0x0080
-    float DefaultTimeNudge;                          // 0x0084
-    float ConnectTimeout;                            // 0x0088
-    float PacketLossLogInterval;                     // 0x008C
-    uint32_t ValidLocalPlayersMask;                  // 0x0090
-    uint32_t DesiredLocalPlayersMask;                // 0x0094
-    uint32_t PersistentLocalPlayersMask;             // 0x0098
-    uint32_t SinglePlayerMaxMessagesPerNetworkFrame; // 0x009C
-    uint32_t MaxMessagesPerNetworkFrame;             // 0x00A0
-    bool SinglePlayerAutomaticTimeNudge;             // 0x00A4
-    bool MemorySocketAutomaticTimeNudge;             // 0x00A5
-    bool LocalHostAutomaticTimeNudge;                // 0x00A6
-    bool DefaultAutomaticTimeNudge;                  // 0x00A7
-    bool IncrementServerPortOnFail;                  // 0x00A8
-    bool UseFrameManager;                            // 0x00A9
-    bool TimeSyncEnabled;                            // 0x00AA
-    bool MLUREnabled;                                // 0x00AB
-    char _0x00AC[4];                                 // 0x00AC
+    uint32_t ProtocolVersion; // 0x10
+    char* TitleId;            // 0x18
+    uint32_t ClientPort;                  // 0x20
+    uint32_t ServerPort;                  // 0x24
+    uint32_t MaxGhostCount;               // 0x28
+    uint32_t MaxClientToServerGhostCount; // 0x2C
+    uint32_t MaxClientCount;              // 0x30
+    uint32_t MaxClientFrameSize;          // 0x34
+    uint32_t MaxServerFrameSize;          // 0x38
+    char* XlspAddress;                     // 0x40
+    char* ServerAddress;                   // 0x48
+    char* ClientConnectionDebugFilePrefix; // 0x50
+    char* ServerConnectionDebugFilePrefix; // 0x58
+    float TimeNudgeGhostFrequencyFactor; // 0x60
+    float TimeNudgeBias;                 // 0x64
+    float ConnectTimeout;                // 0x68
+    float PacketLossLogInterval;         // 0x6C
+    uint32_t MaxLocalPlayerCount; // 0x70
+    bool IncrementServerPortOnFail; // 0x74
+    bool UseFrameManager;           // 0x75
+    bool TimeSyncEnabled;           // 0x76
+    char _pad0[1];                  // 0x77
 };
 struct Guid
 {
@@ -349,59 +327,53 @@ class ClientSettings : public SystemSettings
 {
 public:
     Guid AudioSystemGuid;               // 0x0020
-    char* ScreenshotFilename;           // 0x0030
-    char* ScreenshotSuffix;             // 0x0038
-    uint32_t Team;                      // 0x0040
-    int32_t SpawnPointIndex;            // 0x0044
-    char* ServerIp;                     // 0x0048
-    char* SecondaryServerIp;            // 0x0050
-    float AimScale;                     // 0x0058
-    float IncomingFrequency;            // 0x005C
-    float OutgoingFrequency;            // 0x0060
-    uint32_t IncomingRate;              // 0x0064
-    uint32_t OutgoingRate;              // 0x0068
-    float LoadingTimeout;               // 0x006C
-    float LoadedTimeout;                // 0x0070
-    float IngameTimeout;                // 0x0074
-    float CpuQuality;                   // 0x0078
-    char _0x007C[4];                    // 0x007C
-    char* InstancePath;                 // 0x0080
-    float FrameHistoryTimeWarnScale;    // 0x0088
-    bool IsSpectator;                   // 0x008C
-    bool AllowVideoRecording;           // 0x008D
-    bool DebrisClusterEnabled;          // 0x008E
-    bool VegetationEnabled;             // 0x008F
-    bool ForceEnabled;                  // 0x0090
-    bool WorldRenderEnabled;            // 0x0091
-    bool TerrainEnabled;                // 0x0092
-    bool WaterPhysicsEnabled;           // 0x0093
-    bool OvergrowthEnabled;             // 0x0094
-    bool EffectsEnabled;                // 0x0095
-    bool AutoIncrementPadIndex;         // 0x0096
-    bool LipSyncEnabled;                // 0x0097
-    bool PauseGameOnStartUp;            // 0x0098
-    bool SkipFastLevelLoad;             // 0x0099
-    bool ScreenshotToFile;              // 0x009A
-    bool LoadMenu;                      // 0x009B
-    bool DebugMenuOnLThumb;             // 0x009C
-    bool ScreenshotComparisonsEnable;   // 0x009D
-    bool RenderTags;                    // 0x009E
-    bool Scheme0FlipY;                  // 0x009F
-    bool Scheme1FlipY;                  // 0x00A0
-    bool Scheme2FlipY;                  // 0x00A1
-    bool HavokVisualDebugger;           // 0x00A2
-    bool HavokCaptureToFile;            // 0x00A3
-    bool ShowBuildId;                   // 0x00A4
-    bool ExtractPersistenceInformation; // 0x00A5
-    bool EnableRestTool;                // 0x00A6
-    bool LocalVehicleSimulationEnabled; // 0x00A7
-    bool AutoUnspawnDynamicObjects;     // 0x00A8
-    bool QuitGameOnServerDisconnect;    // 0x00A9
-    bool LuaOptionSetEnable;            // 0x00AA
-    bool FastExit;                      // 0x00AB
-    char _0x00AC[4];                    // 0x00AC
+    char* ScreenshotFilename;           // 0x0038
+    char* ScreenshotSuffix;             // 0x0040
+    uint32_t Team;                      // 0x0048
+    int32_t SpawnPointIndex;            // 0x004C
+    char* ServerIp;                     // 0x0050
+    char* SecondaryServerIp;            // 0x0058
+    float AimScale;                     // 0x0060
+    float IncomingFrequency;            // 0x00B8
+    uint32_t IncomingRate;              // 0x00BC
+    uint32_t OutgoingRate;              // 0x00C0
+    float LoadingTimeout;               // 0x00C4
+    float LoadedTimeout;                // 0x00C8
+    float IngameTimeout;                // 0x00CC
+    bool IsSpectator;                   // 0x00D0
+    bool AllowVideoRecording;           // 0x00D1 (maps to VSyncEnable)
+    bool DebrisClusterEnabled;          // 0x00D3
+    bool VegetationEnabled;             // 0x00D4
+    bool ForceEnabled;                  // 0x00D5
+    bool WorldRenderEnabled;            // 0x00D6
+    bool TerrainEnabled;                // 0x00D7
+    bool WaterPhysicsEnabled;           // 0x00D8
+    bool OvergrowthEnabled;             // 0x00D9
+    bool EffectsEnabled;                // 0x00DA
+    bool AutoIncrementPadIndex;         // 0x00DC
+    bool LipSyncEnabled;                // 0x00DD
+    bool PauseGameOnStartUp;            // 0x00E0
+    bool SkipFastLevelLoad;             // 0x00E1
+    bool ScreenshotToFile;              // 0x00E3
+    bool LoadMenu;                      // 0x00E4
+    bool DebugMenuOnLThumb;             // 0x00E5
+    bool RenderTags;                    // 0x00E7
+    bool Scheme0FlipY;                  // 0x00EA
+    bool Scheme1FlipY;                  // 0x00EB
+    bool Scheme2FlipY;                  // 0x00EC
+    bool HavokVisualDebugger;           // 0x00F0
+    bool HavokCaptureToFile;            // 0x00F2
+    bool ShowBuildId;                   // 0x00F5
+    bool ExtractPersistenceInformation; // 0x00F6
+    bool EnableRestTool;                // 0x00F7
+    bool LocalVehicleSimulationEnabled; // 0x00F8
+    bool AutoUnspawnDynamicObjects;     // 0x00FA
+    bool QuitGameOnServerDisconnect;    // 0x00FB
+    bool LuaOptionSetEnable;            // 0x00FE
+    bool FastExit;                      // 0x00FF (pad to align)
+    char _0x0100[4];                    // 0x0100 padding
 };
-class WSGameSettings : public SystemSettings
+    class WSGameSettings : public SystemSettings
 {
 public:
     char* ReleaseVersionName;                     // 0x0020
@@ -579,7 +551,7 @@ public:
     float DebugWindowPositionScaleOffsetY;                       // 0x0260
     int32_t DebugWindowWidth;                                    // 0x0264
     int32_t DebugWindowHeight;                                   // 0x0268
-    float PathLookAheadMeters;                                   // 0x026C
+    float PathLookAheadMeters;                                   // 0x026CF
     float PathLookRightMeters;                                   // 0x0270
     float WaypointToleranceMeters;                               // 0x0274
     float EvasiveManeuversVehicleScale;                          // 0x0278
