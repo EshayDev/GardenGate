@@ -15,6 +15,7 @@ This is simply adding GW1 (potentially GW2) dedicated server support.
 What isn't done:
 * Fix crashes caused by; lnck,cmms
 * Get an unlocker to work with it
+* Polish imgui stuff
 
 Due to security reasons, i'd reccomend keeping multiplayer servers on LAN over things like RadminVPN if things work.
 
