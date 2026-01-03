@@ -20,7 +20,7 @@ jobs:
       - name: Restore NuGet Packages
         run: |
           cd GUI_Launcher
-          dotnet restore Launcher.sln
+          dotnet restore Launcher.slnx
 
       - name: Build
         run: |
