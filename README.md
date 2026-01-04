@@ -27,7 +27,7 @@ twig
 
 blueballoon
 
-rex
+puro420
 
 ### Projects
 Following open-source projects were used:
