@@ -6,7 +6,7 @@
 ### Garden warfare 1
 [UnlockAll](../Mods/GW1/UnlockAll.fbmod)
 
-### Garden warfare 2 [PLEASE CLICK THIS FIRST](./gw2_downgrade.md)
+### Garden warfare 2 [PLEASE DOWNGRADE YOUR GAME FIRST](./gw2_downgrade.md)
 
 [Offline mode](../Mods/GW2/OfflineModeLatestCompatible.fbmod) (brekko)
 
