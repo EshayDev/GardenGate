@@ -1,6 +1,7 @@
+# Joining
 1. Put `dinput8.dll` from [releases](https://github.com/nocss42/GardenGate/releases) next to your game's .exe
 
-2. Install the following mods
+2. Install the following mods for best experience
 
 ### Garden warfare 1
 [Unlocker](../Mods/GW1/UnlockAll.fbmod)

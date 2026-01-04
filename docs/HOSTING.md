@@ -1,3 +1,5 @@
+# Hosting
+
 ### Garden warfare 1
 
 1. Put `dinput8.dll` from [releases](https://github.com/nocss42/GardenGate/releases) next to your game's .exe
