@@ -6,7 +6,7 @@
 
 2. Install the following mods 
 
-[Unlocker](../Mods/GW1/UnlockAll.fbmod)
+[UnlockAll](../Mods/GW1/UnlockAll.fbmod)
 
 3. Inject the map loader dll of your choice;
 
