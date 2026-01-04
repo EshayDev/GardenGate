@@ -4,4 +4,10 @@
 
 2. Open xdelta patcher, select your game's executable as the original file and select the xdelta patch
 
+It should look something like this;
+
+![](./xdelta.webp)
+
 3. Press `Apply patch`
+
+### We'll probably automate this with the launcher at some point.
