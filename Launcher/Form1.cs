@@ -229,6 +229,9 @@ namespace Launcher
             if (!string.IsNullOrWhiteSpace(ServerIpTextBox.Text))
                 argList.Add($"-Client.ServerIp {ServerIpTextBox.Text}");
 
+            if (!string.IsNullOrWhiteSpace(ServerPasswordTextBox.Text))
+                argList.Add($"-Server.ServerPassword {ServerPasswordTextBox.Text}");
+
             if (ModDataCheckBox.Checked && ModDataComboBox.SelectedItem != null)
                 argList.Add($"-dataPath ModData/{ModDataComboBox.SelectedItem}");
 

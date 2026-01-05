@@ -56,6 +56,7 @@ namespace fb
             const auto trampoline = GG::HookManager::getManager().Call(&ClientConnectToAddress);
 
             ipAddress = g_game->redirectHostingAddress(ipAddress);
+            serverPassword = GetOptionParameter("Server.ServerPassword", "", 0);
             g_game->logClientConnect(ipAddress, serverPassword);
 
             return trampoline(inst, ipAddress, serverPassword);
@@ -153,6 +154,7 @@ namespace fb
             const auto trampoline = GG::HookManager::getManager().Call(&ClientConnectToAddress);
 
             ipAddress = g_game->redirectHostingAddress(ipAddress);
+            serverPassword = GetOptionParameter("Server.ServerPassword", "", 0);
             g_game->logClientConnect(ipAddress, serverPassword);
 
             return trampoline(inst, ipAddress, serverPassword);
