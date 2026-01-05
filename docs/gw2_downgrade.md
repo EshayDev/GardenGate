@@ -6,7 +6,7 @@
 
 It should look something like this;
 
-![](./xdelta.webp)
+![](./Assets/xdelta.webp)
 
 3. Press `Apply patch`
 
