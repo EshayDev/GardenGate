@@ -26,9 +26,9 @@ We recommend;
 
 2. Install the following mods in their respective order;
 
-[Offline mode](../Mods/GW2/OfflineModeLatestCompatible.fbmod) (brekko)
-
 [Private Play](../Mods/GW2/PrivatePlayRemastered.fbmod) (Dark Damona,brekko)
+
+[Offline mode](../Mods/GW2/OfflineModeLatestCompatible.fbmod) (brekko)
 
 [AIHax](../Mods/GW2/AIHax.fbmod) (Nam)
 
