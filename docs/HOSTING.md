@@ -24,21 +24,23 @@ We recommend;
 
 1. Put `dinput8.dll` from [releases](https://github.com/nocss42/GardenGate/releases) next to your game's .exe
 
-2. Install the following mods in their respective order;
+2. Download the FBPACK from the repository [here](https://github.com/nocss42/GardenGate/blob/main/Mods/GW2/GardenGate.fbpack)
 
-[Private Play](../Mods/GW2/PrivatePlayRemastered.fbmod) (Dark Damona,brekko)
+3. Import the FBPack in Frosty Mod Manager, the load order should be something like this;
 
-[Offline mode](../Mods/GW2/OfflineModeLatestCompatible.fbmod) (brekko)
+Private Play (Dark Damona,brekko)
 
-[AIHax](../Mods/GW2/AIHax.fbmod) (Nam)
+Private Play Extension (Dark Damona,brekko)
 
-[UpgradesUnlocker](../Mods/GW2/UpgradesUnlocker.fbmod)
+Offline mode + GardenGate Extras (brekko, modified)
 
-<img src="./Assets/mod_load_order.webp" />
+AIHax (Nam)
+
+<img src="./Assets/Load_Order.png" />
 
 3. Launch the game with the launcher (keep the ip section empty)
 
 4. Host any map of your choice through the multiplayer portal
 
 ### (Make sure to port forward `25200` or use some sort of VLAN software)
-### RadminVPN or Hamachi
+### RadminVPN or Hamachi, Add your friends to the network and join by the IP it provides.
