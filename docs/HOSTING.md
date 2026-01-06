@@ -24,11 +24,11 @@ We recommend;
 
 1. Put `dinput8.dll` from [releases](https://github.com/nocss42/GardenGate/releases) next to your game's .exe
 
-2. Download the FBPACK from the repository [here](https://github.com/nocss42/GardenGate/blob/main/Mods/GW2/GardenGate.fbpack)
+2. Download the FBPACK from the repository [here](../Mods/GW2/GardenGate.fbpack)
 
 3. Import the FBPack in Frosty Mod Manager, the load order should be something like this;
 
-<img src="./Assets/Load_Order.PNG" />
+<img src="./Assets/load_order.webp" />
 
 3. Launch the game with the launcher (keep the ip section empty)
 
