@@ -21,6 +21,6 @@ Private Play (Dark Damona,brekko)
 
 Private Play Extension (Dark Damona,brekko)
 
-Offline mode + GardenGate Extras (brekko, modified)
+Offline mode + Fixes (brekko, modified)
 
 AIHax (Nam)
