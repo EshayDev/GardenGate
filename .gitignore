@@ -294,3 +294,11 @@ __pycache__/
 *.btm.cs
 *.odx.cs
 *.xsd.cs
+
+# Kate
+*.kate-swp
+
+# Build stuff
+minhook
+build-minhook
+build-gg/

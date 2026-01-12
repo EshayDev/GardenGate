@@ -1,6 +1,9 @@
 set(CMAKE_SYSTEM_NAME Windows)
 set(CMAKE_SYSTEM_PROCESSOR x86_64)
 
+
+set(CMAKE_BUILD_TYPE Release)
+
 set(CMAKE_C_COMPILER   x86_64-w64-mingw32-gcc)
 set(CMAKE_CXX_COMPILER x86_64-w64-mingw32-g++)
 
@@ -14,6 +17,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 # Static
-set(CMAKE_C_FLAGS_INIT "-static -static-libgcc -fno-pthread")
-set(CMAKE_CXX_FLAGS_INIT "-static -static-libgcc -static-libstdc++ -fno-pthread")
+set(CMAKE_C_FLAGS_INIT "-static -static-libgcc")
+set(CMAKE_CXX_FLAGS_INIT "-static -static-libgcc -static-libstdc++")
 set(CMAKE_SHARED_LINKER_FLAGS_INIT "-static -static-libgcc -static-libstdc++")

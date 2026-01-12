@@ -34,7 +34,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 if (MINGW)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     ws2_32
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/MinHook/minhook.a"
+    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/MinHook/minhook.x64.a"
   )
 elseif (MSVC)
   target_link_libraries(${PROJECT_NAME} PRIVATE

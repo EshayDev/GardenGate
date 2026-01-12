@@ -14,35 +14,22 @@ jobs:
       - name: Install Visual Studio Build Tools
         shell: pwsh
         run: |
-          $vsInstallerUrl = "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-          $vsInstallerPath = "$env:RUNNER_TEMP\vs_BuildTools.exe"
-          $installDir = "C:\MyVS"
-
-          Invoke-WebRequest $vsInstallerUrl -OutFile $vsInstallerPath
-
-          Start-Process -Wait -FilePath $vsInstallerPath -ArgumentList `
-            "--installPath `"$installDir`"", `
-            "--add Microsoft.VisualStudio.Workload.VCTools", `
-            "--includeRecommended", `
-            "--passive", "--norestart", "--wait"
-
-      - name: Setup MSVC Environment
-        shell: cmd
-        run: |
-          call "C:\MyVS\VC\Auxiliary\Build\vcvars64.bat"
+          choco install visualstudio2022buildtools `
+            --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended" `
+            -y
 
       - name: Build Server
         shell: cmd
         run: |
-          call "C:\MyVS\VC\Auxiliary\Build\vcvars64.bat"
+          call "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
           mkdir build
           cd build
           cmake .. -G "Visual Studio 17 2022"
           cmake --build . --config Release
 
-      - name: Upload Dll
+      - name: Upload artifact/s
         uses: actions/upload-artifact@v4
         with:
-          name: Binaries
+          name: DLL
           path: |
-            Build
+            Build/Release

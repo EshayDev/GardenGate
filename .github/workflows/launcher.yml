@@ -1,35 +1,36 @@
-name: Build launcher on Windows
+name: Build Launcher
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build Launcher on Windows
     runs-on: windows-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install .NET SDK via Chocolatey
+      - name: Install Visual Studio Build Tools
         shell: pwsh
         run: |
-          choco install dotnet-sdk -y
+          choco install visualstudio2022buildtools `
+            --package-parameters "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended" `
+            -y
 
-      - name: Restore NuGet Packages
+      - name: Build Server
+        shell: cmd
         run: |
-          cd Launcher
-          dotnet restore Launcher.csproj
+          call "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat"
+          cd Launhcer
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022"
+          cmake --build . --config Release
 
-      - name: Build
-        run: |
-          cd Launcher
-          dotnet build Launcher.csproj -c Release
-
-      - name: Upload Artifacts
+      - name: Upload artifact/s
         uses: actions/upload-artifact@v4
         with:
-          name: Release
+          name: Launhcer
           path: |
-            Launcher/bin
+            Launcher/Build/Release
