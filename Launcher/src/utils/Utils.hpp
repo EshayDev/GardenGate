@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <Windows.h>
+#include <windows.h>
 #include <imgui.h>
 #include <vector>
 

@@ -1,5 +1,7 @@
 name: Build Launcher (Linux)
 
+# This workflow is WIP.
+
 on:
   workflow_dispatch:
 
@@ -7,30 +9,43 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    container:
+      image: archlinux:latest
+
     steps:
-      - name: Checkout Repository
+      - name: Install base dependencies
+        run: |
+          pacman -Syu --noconfirm archlinux-keyring
+          pacman -Syu --noconfirm base-devel sudo git cmake extra-cmake-modules mingw-w64-binutils mingw-w64-crt mingw-w64-gcc mingw-w64-headers mingw-w64-winpthreads
+
+      - name: Create build user
+        run: |
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install .NET SDK manually
-        run: |
-          set -x
-          curl -sSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
-          chmod +x dotnet-install.sh
-          ./dotnet-install.sh --channel 10.0
-          echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
-          echo "$HOME/.dotnet" >> $GITHUB_PATH
-          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+      - name: Fix permissions
+        run: chown -R builder:builder .
 
-      - name: Restore & build
+      - name: Build
         run: |
-          set -x
+          sudo -u builder sh <<'EOF'
+          set -e
           cd Launcher
-          dotnet restore
-          dotnet build -c Release
+          mkdir build-launcher
+          cd build-launcher
+          sh -c "
+          cmake .. \
+            -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw64.cmake
+          "
+          cmake --build .
+          EOF
 
       - name: Upload artifact/s
         uses: actions/upload-artifact@v4
         with:
-          name: Launcher
+          name: DLL
           path: |
-            Launcher/bin/Release/net10.0-windows/win-x64
+            Launcher/build-launcher/GardenGate_Launcher.exe

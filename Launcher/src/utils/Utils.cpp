@@ -1,6 +1,6 @@
 #include "Utils.hpp"
 #include <filesystem>
-#include <ShlObj.h>
+#include <shlobj.h>
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <process.h>

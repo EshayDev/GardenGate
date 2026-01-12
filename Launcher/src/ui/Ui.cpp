@@ -3,7 +3,7 @@
 #include "Patcher.hpp"
 #include "Utils.hpp"
 
-#include <Windows.h>
+#include <windows.h>
 #include <filesystem>
 #include <string>
 

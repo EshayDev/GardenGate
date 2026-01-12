@@ -78,22 +78,38 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 )
 
 # ---- Libraries ----
+# ---- Libraries ----
 if (MSVC)
     target_link_libraries(${PROJECT_NAME} PRIVATE
-        d3d11.lib
-        dxgi.lib
-        d3dcompiler.lib
-        user32.lib
-        gdi32.lib
-        shell32.lib
-        shlwapi.lib
-        ole32.lib
-        advapi32.lib
-        comctl32.lib
+        d3d11
+        dxgi
+        d3dcompiler
+        user32
+        gdi32
+        shell32
+        shlwapi
+        ole32
+        advapi32
+        comctl32
+        dwmapi
+    )
+elseif (MINGW)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        d3d11
+        dxgi
+        d3dcompiler
+        user32
+        gdi32
+        shell32
+        shlwapi
+        ole32
+        advapi32
+        comctl32
+        dwmapi
     )
 endif()
 
 # ---- Output ----
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    OUTPUT_NAME "GardenGate Launcher"
+    OUTPUT_NAME "GardenGate_Launcher"
 )
