@@ -1,6 +1,6 @@
 # Frequently Asked Questions (FAQ)
 
-### Is this an official Garden warfare 1/2 server?
+### Are these official?
 No, this is a private server project created for educational and experimental purposes. It is not affiliated with or endorsed by EA.
 
 ### Does this make gw2 work with wine again?
