@@ -14,7 +14,8 @@ Experimental private servers for Plants vs. Zombies Garden Warfare 1 & 2
 
 ### What's not done (TODO):
 * Player kicking/moderation
-* Fix return to backyard button
+* Make launch args real time bc EA App sucks (gw1)
+* Fix return to backyard button (gw2)
 * Fix Zombopolis last, several doorways in the center area are blocked for clients. Host and bots can pass through, but clients and their objects (e.g. bean bombs) cannot.
 * Fix Zomburbia Zombot fuses on last point unable to be broken
 
