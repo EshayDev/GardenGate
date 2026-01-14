@@ -4,6 +4,8 @@
 #include <imgui.h>
 #include <vector>
 
+#include "Config.hpp"
+
 namespace Utils {
 
 	namespace Registry {
@@ -25,6 +27,9 @@ namespace Utils {
 			std::string error;
 			PROCESS_INFORMATION pi = { 0 };
 		};
+
+		std::string BuildArgs(const Config& cfg);
+		void PatchEAArgs(const std::string& args);
 
 		LaunchResult LaunchAndInject(const std::string& exePath, const std::string& args, bool injectDLL, const std::string& dllName = "level_loader.dll");
 		bool InjectDLL(DWORD processId, const std::string& dllPath);

@@ -146,6 +146,7 @@ static void drawStatusMessage(float dpiScale) {
 	ImGui::Text("%s", currentStatus.text.c_str());
 	ImGui::PopStyleColor();
 }
+
 static void drawLauncherTab(HWND hwnd, float dpiScale) {
 	float safeWidth = ImGui::GetContentRegionAvail().x;
 	float fieldWidth = safeWidth * 0.85f;
@@ -180,10 +181,10 @@ static void drawLauncherTab(HWND hwnd, float dpiScale) {
 		if (!detected.empty()) {
 			fs::path exePath = fs::path(detected);
 			if (gameSelectedInt == 0) {
-				exePath /= "PVZ.Main_Win64_Retail.exe"; 
+				exePath /= "PVZ.Main_Win64_Retail.exe";
 			}
 			else {
-				exePath /= "GW2.Main_Win64_Retail.exe"; 
+				exePath /= "GW2.Main_Win64_Retail.exe";
 			}
 			currentGame.game_path = exePath.string();
 			showStatus("Auto detected game path: " + currentGame.game_path);
@@ -250,22 +251,11 @@ static void drawLauncherTab(HWND hwnd, float dpiScale) {
 
 	Utils::UI::CenteredInput("Custom Arguments:", currentGame.custom_args, centerOffset, fieldWidth);
 
-	std::vector<std::string> argList;
-	if (!currentGame.custom_args.empty()) argList.push_back(currentGame.custom_args);
-	if (!g_config.username.empty())       argList.push_back("-name " + g_config.username);
-	if (!g_config.server_ip.empty())      argList.push_back("-Client.ServerIp " + g_config.server_ip);
-	if (!g_config.password.empty())       argList.push_back("-Server.ServerPassword " + g_config.password);
-	if (currentGame.moddata_enabled && !currentGame.moddata_selected.empty()) {
-		std::string dataPathVal = "ModData/" + currentGame.moddata_selected;
-		if (dataPathVal.find(' ') != std::string::npos) dataPathVal = "\"" + dataPathVal + "\"";
-		argList.push_back("-dataPath " + dataPathVal);
-	}
+	std::string args = Utils::Process::BuildArgs(g_config);
 
-	std::string args;
-	for (size_t i = 0; i < argList.size(); ++i) {
-		if (i) args += ' ';
-		args += argList[i];
-	}
+	ImGui::Dummy(ImVec2(0, 8 * dpiScale));
+	ImGui::SetCursorPosX(centerOffset);
+	ImGui::TextWrapped(("Args preview: " + args).c_str());
 
 	ImGui::Dummy(ImVec2(0, 12 * dpiScale));
 	if (Utils::UI::CenteredButton("LAUNCH GAME", 180 * dpiScale, dpiScale)) {
@@ -275,6 +265,7 @@ static void drawLauncherTab(HWND hwnd, float dpiScale) {
 			showStatus("Please set a game path first!", true);
 		}
 		else {
+			Utils::Process::PatchEAArgs(args);
 			auto lr = Utils::Process::LaunchAndInject(currentGame.game_path, args, isGW1);
 
 			if (!lr.ok) {

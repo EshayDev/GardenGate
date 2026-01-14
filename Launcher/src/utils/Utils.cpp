@@ -1,4 +1,6 @@
 #include "Utils.hpp"
+
+#include <fstream> 
 #include <filesystem>
 #include <shlobj.h>
 #include <shellapi.h>
@@ -92,6 +94,63 @@ namespace Utils {
 
 	namespace Process {
 
+		std::string BuildArgs(const Config& cfg) {
+			const GameConfig& game = cfg.get_current_game();
+			std::vector<std::string> argList;
+
+			if (!game.custom_args.empty()) argList.push_back(game.custom_args);
+
+			if (!cfg.username.empty()) argList.push_back("-name " + cfg.username);
+			if (!cfg.server_ip.empty()) argList.push_back("-Client.ServerIp " + cfg.server_ip);
+			if (!cfg.password.empty()) argList.push_back("-Server.ServerPassword " + cfg.password);
+
+			if (game.moddata_enabled && !game.moddata_selected.empty()) {
+				std::string dataPathVal = "ModData/" + game.moddata_selected;
+				if (dataPathVal.find(' ') != std::string::npos)
+					dataPathVal = "\"" + dataPathVal + "\"";
+				argList.push_back("-dataPath " + dataPathVal);
+			}
+
+			std::string args;
+			for (size_t i = 0; i < argList.size(); ++i) {
+				if (i) args += ' ';
+				args += argList[i];
+			}
+
+			return args;
+		}
+
+		void PatchEAArgs(const std::string& args) {
+			fs::path eaDir = fs::path(getenv("LOCALAPPDATA")) / "Electronic Arts" / "EA Desktop";
+
+			for (const auto& entry : fs::directory_iterator(eaDir)) {
+				if (entry.is_regular_file() && entry.path().extension() == ".ini") {
+					std::ifstream in(entry.path());
+					if (!in) continue;
+
+					std::string line, output;
+					bool modified = false;
+
+					while (std::getline(in, line)) {
+						if (line.rfind("user.gamecommandline.ofb-east:", 0) == 0) {
+							auto pos = line.find('=');
+							if (pos != std::string::npos) {
+								line = line.substr(0, pos + 1) + args;
+								modified = true;
+							}
+						}
+						output += line + "\n";
+					}
+					in.close();
+
+					if (modified) {
+						std::ofstream out(entry.path(), std::ios::trunc);
+						out << output;
+					}
+				}
+			}
+		}
+
 		bool InjectDLL(DWORD processId, const std::string& dllPath) {
 			HANDLE hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION |
 				PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
@@ -125,8 +184,7 @@ namespace Utils {
 				return false;
 			}
 
-			HANDLE hThread = CreateRemoteThread(hProcess, nullptr, 0,
-				loadLibAddr, remoteMem, 0, nullptr);
+			HANDLE hThread = CreateRemoteThread(hProcess, nullptr, 0, loadLibAddr, remoteMem, 0, nullptr);
 			if (!hThread) {
 				VirtualFreeEx(hProcess, remoteMem, 0, MEM_RELEASE);
 				CloseHandle(hProcess);
@@ -138,7 +196,6 @@ namespace Utils {
 			CloseHandle(hThread);
 			VirtualFreeEx(hProcess, remoteMem, 0, MEM_RELEASE);
 			CloseHandle(hProcess);
-
 			return true;
 		}
 
@@ -149,15 +206,15 @@ namespace Utils {
 		{
 			LaunchResult lr;
 			STARTUPINFOA si = { sizeof(si) };
-			PROCESS_INFORMATION pi = { 0 };
+			PROCESS_INFORMATION pi{};
 
 			std::string cmdLineStr = "\"" + exePath + "\" " + args;
 			std::vector<char> cmdLine(cmdLineStr.begin(), cmdLineStr.end());
 			cmdLine.push_back('\0');
 
 			BOOL ok = CreateProcessA(
-				NULL, cmdLine.data(),
-				NULL, NULL, FALSE, 0, NULL,
+				nullptr, cmdLine.data(),
+				nullptr, nullptr, FALSE, 0, nullptr,
 				fs::path(exePath).parent_path().string().c_str(),
 				&si, &pi);
 
@@ -170,8 +227,6 @@ namespace Utils {
 			lr.pi = pi;
 
 			if (injectDLL) {
-				Sleep(4000);
-
 				fs::path dllPath = fs::path(exePath).parent_path() / dllName;
 				if (!fs::exists(dllPath)) {
 					lr.error = dllName + " not found next to the game exe.";
@@ -179,8 +234,29 @@ namespace Utils {
 					return lr;
 				}
 
-				if (!InjectDLL(pi.dwProcessId, dllPath.string())) {
-					lr.error = "DLL injection failed.";
+				const wchar_t* Gw1Title = L"PVZ Garden Warfare";
+				DWORD pid = 0;
+				int waited = 0;
+				while (waited < 30000) {
+					HWND hwnd = FindWindowW(nullptr, Gw1Title);
+					if (hwnd) {
+						GetWindowThreadProcessId(hwnd, &pid);
+						if (pid) break;
+					}
+					Sleep(500);
+					waited += 500;
+				}
+
+				if (!pid) {
+					lr.error = "Timed out waiting for GW1 window.";
+					lr.ok = false;
+					return lr;
+				}
+
+				Sleep(4000);
+
+				if (!InjectDLL(pid, dllPath.string())) {
+					lr.error = "DLL injection into GW1 failed.";
 					lr.ok = false;
 					return lr;
 				}
