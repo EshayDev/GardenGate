@@ -92,7 +92,7 @@ void Renderer::Run()
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
     const int windowWidth = 770;
-    const int windowHeight = 630;
+    const int windowHeight = 640;
 
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);

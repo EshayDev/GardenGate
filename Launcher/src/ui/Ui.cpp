@@ -122,7 +122,7 @@ static void drawStatusMessage(float dpiScale) {
 	float safeWidth = ImGui::GetContentRegionAvail().x;
 	float centerOffset = (safeWidth - 400 * dpiScale) / 2.0f;
 
-	ImGui::Dummy(ImVec2(0, 10 * dpiScale));
+	ImGui::Dummy(ImVec2(0, 5 * dpiScale));
 
 	auto elapsed = std::chrono::steady_clock::now() - currentStatus.showTime;
 	float elapsedSec = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() / 1000.0f;
@@ -308,9 +308,11 @@ static void drawPatcherTab(HWND hwnd, float dpiScale) {
 		if (ImGui::Button("Auto Detect", ImVec2(100 * dpiScale, 0))) {
 			std::string detected = Utils::Registry::GetGamePathFromRegistry(false);
 			if (!detected.empty()) {
-				gw1Config.game_path = detected;
+				fs::path exePath = fs::path(detected);
+				exePath /= "PVZ.Main_Win64_Retail.exe";
+				gw1Config.game_path = exePath.string();
 				save_config(g_config, "config.json");
-				showStatus("Auto detected GW1 path: " + detected);
+				showStatus("Auto detected GW1 path: " + exePath.string());
 			}
 			else {
 				showStatus("Could not auto detect GW1 installation", true);
@@ -399,15 +401,18 @@ static void drawPatcherTab(HWND hwnd, float dpiScale) {
 		if (ImGui::Button("Auto Detect", ImVec2(100 * dpiScale, 0))) {
 			std::string detected = Utils::Registry::GetGamePathFromRegistry(true);
 			if (!detected.empty()) {
-				gw2Config.game_path = detected;
+				fs::path exePath = fs::path(detected);
+				exePath /= "GW2.Main_Win64_Retail.exe";
+				gw2Config.game_path = exePath.string();
 				save_config(g_config, "config.json");
-				showStatus("Auto detected GW2 path: " + detected);
+				showStatus("Auto detected GW2 path: " + exePath.string());
 				isPatched = Patcher::IsGW2Patched(gw2Config.game_path);
 			}
 			else {
 				showStatus("Could not auto detect GW2 installation", true);
 			}
 		}
+
 		ImGui::SameLine();
 		if (ImGui::Button("Browse", ImVec2(80 * dpiScale, 0))) {
 			std::string chosen = Utils::Dialog::BrowseForExe(hwnd, true);
