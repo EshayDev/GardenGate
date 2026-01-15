@@ -3,7 +3,7 @@
 ### Are these official?
 No, this is a private server project created for educational and experimental purposes. It is not affiliated with or endorsed by EA.
 
-### Does this make gw2 work with wine again?
+### Does this make gw2/bfn work with wine again?
 Yes it should. Please [see this](./LINUX.md)
 
 ### Does this work on console?

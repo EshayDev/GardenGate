@@ -7,7 +7,6 @@
 [UnlockAll](../Mods/GW1/UnlockAll.fbmod)
 
 ### Garden warfare 2
-
 [GardenGate.fbpack](../Mods/GW2/GardenGate.fbpack)
 
 Import the FBPack in Frosty Mod Manager, the load order should be something like this;

@@ -2,7 +2,7 @@
 
 ### Garden warfare 1
 
-1. Download the archive from [releases](https://github.com/nocss42/GardenGate/releases) 
+1. Download the archive from [releases](https://github.com/nocss42/GardenGate/releases)
 
 2. Install the following mods;
 
@@ -35,6 +35,14 @@ Put the one of your choice to game's directory and name it as `level_loader.dll`
 4. Open up the launcher go to patcher and press auto detect > patch (keep the ip section empty)
 
 5. Host any map of your choice through the multiplayer portal
+
+### Battle for Neighborville
+
+1. Download the archive from [releases](https://github.com/nocss42/GardenGate/releases)
+
+2. Open up the launcher go to patcher and press auto detect > patch (keep the ip section empty)
+
+3. Host any map of your choice through the multiplayer portal
 
 ### (Make sure to port forward `25200` or use some sort of VPN software)
 ### RadminVPN or Hamachi, Add your friends to the network and join by the IP it provides.
