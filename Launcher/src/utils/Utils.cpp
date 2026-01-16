@@ -2,6 +2,8 @@
 
 #include <fstream> 
 #include <filesystem>
+#include <map>
+#include <algorithm>
 #include <shlobj.h>
 #include <shellapi.h>
 #include <shlwapi.h>
@@ -101,7 +103,7 @@ namespace Utils {
 
 			if (!game.custom_args.empty()) argList.push_back(game.custom_args);
 
-				if (!cfg.username.empty()) argList.push_back("-name " + cfg.username);
+			if (!cfg.username.empty()) argList.push_back("-name " + cfg.username);
 			if (!cfg.server_ip.empty()) argList.push_back("-Client.ServerIp " + cfg.server_ip);
 			if (!cfg.password.empty()) argList.push_back("-Server.ServerPassword " + cfg.password);
 
@@ -114,8 +116,15 @@ namespace Utils {
 			return args;
 		}
 
-		void PatchEAArgs(const std::string& args) {
+		static std::map<std::string, std::string> originalArgs;
+
+		void PatchEAArgs(const std::string& args, bool isGW2) {
 			fs::path eaDir = fs::path(getenv("LOCALAPPDATA")) / "Electronic Arts" / "EA Desktop";
+
+			std::string cleanedArgs = args;
+			if (!cleanedArgs.empty()) {
+				cleanedArgs.erase(std::remove(cleanedArgs.begin(), cleanedArgs.end(), '\"'), cleanedArgs.end());
+			}
 
 			for (const auto& entry : fs::directory_iterator(eaDir)) {
 				if (entry.is_regular_file() && entry.path().extension() == ".ini") {
@@ -129,7 +138,10 @@ namespace Utils {
 						if (line.rfind("user.gamecommandline.ofb-east:", 0) == 0) {
 							auto pos = line.find('=');
 							if (pos != std::string::npos) {
-								line = line.substr(0, pos + 1) + args;
+								if (originalArgs.find(entry.path().string()) == originalArgs.end()) {
+									originalArgs[entry.path().string()] = line.substr(pos + 1);
+								}
+								line = line.substr(0, pos + 1) + cleanedArgs;
 								modified = true;
 							}
 						}
@@ -143,6 +155,34 @@ namespace Utils {
 					}
 				}
 			}
+		}
+
+		void RestoreEAArgs() {
+			for (const auto& [filePath, originalValue] : originalArgs) {
+				std::ifstream in(filePath);
+				if (!in) continue;
+
+				std::string line, output;
+				bool modified = false;
+
+				while (std::getline(in, line)) {
+					if (line.rfind("user.gamecommandline.ofb-east:", 0) == 0) {
+						auto pos = line.find('=');
+						if (pos != std::string::npos) {
+							line = line.substr(0, pos + 1) + originalValue;
+							modified = true;
+						}
+					}
+					output += line + "\n";
+				}
+				in.close();
+
+				if (modified) {
+					std::ofstream out(filePath, std::ios::trunc);
+					out << output;
+				}
+			}
+			originalArgs.clear();
 		}
 
 		bool InjectDLL(DWORD processId, const std::string& dllPath) {
@@ -217,13 +257,16 @@ namespace Utils {
 
 		LaunchResult LaunchAndInject(const std::string& exePath,
 			const std::string& args,
-			bool injectDLL,
 			const std::string& dllName,
-			const std::string& modDataPath)
+			const std::string& modDataPath,
+			bool isGW2)
 		{
 			KillProcessByName("EADesktop.exe");
 			KillProcessByName("Origin.exe");
-			KillProcessByName("steam.exe");
+			
+			if (isGW2) {
+				KillProcessByName("steam.exe");
+			}
 
 			LaunchResult lr;
 			STARTUPINFOA si = { sizeof(si) };
@@ -282,7 +325,7 @@ namespace Utils {
 			lr.ok = true;
 			lr.pi = pi;
 
-			if (injectDLL) {
+			if (!isGW2) {
 				fs::path dllPath = fs::path(exePath).parent_path() / dllName;
 				if (!fs::exists(dllPath)) {
 					lr.error = dllName + " not found next to the game exe.";
