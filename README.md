@@ -18,7 +18,7 @@ Experimental private servers for Plants vs. Zombies Garden Warfare 1 & 2
 * Custom color for launcher buttons
 * Player kicking/moderation
 * Make launch args real time bc EA App sucks (gw1)
-* [Closing a client](./client.webp) through the console instead of the game tricks the server into believing you are still connected, so attempting to load into another level causes the entire server to softlock
+* [Closing a client](./Assets/client.webp) through the console instead of the game tricks the server into believing you are still connected, so attempting to load into another level causes the entire server to softlock
 * Make it so that only host can load into the backyard
 * Fix Zombopolis last, several doorways in the center area are blocked for clients. Host and bots can pass through, but clients and their objects (e.g. bean bombs) cannot.
 * Fix Zomburbia Zombot fuses on last point unable to be broken
