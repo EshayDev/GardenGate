@@ -1,6 +1,7 @@
 #include "Renderer.hpp"
 #include "Ui.hpp"
 #include "Config.hpp"
+#include "Utils.hpp"
 
 ID3D11Device* Renderer::pd3dDevice = nullptr;
 ID3D11DeviceContext* Renderer::pd3dDeviceContext = nullptr;
@@ -167,6 +168,8 @@ void Renderer::Run()
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
         pSwapChain->Present(1, 0);
     }
+
+    Utils::Process::RestoreEAArgs();
 
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();

@@ -2,10 +2,13 @@
 
 #include <fstream> 
 #include <filesystem>
+#include <map>
+#include <algorithm>
 #include <shlobj.h>
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <process.h>
+#include <tlhelp32.h>
 
 namespace fs = std::filesystem;
 
@@ -104,13 +107,6 @@ namespace Utils {
 			if (!cfg.server_ip.empty()) argList.push_back("-Client.ServerIp " + cfg.server_ip);
 			if (!cfg.password.empty()) argList.push_back("-Server.ServerPassword " + cfg.password);
 
-			if (game.moddata_enabled && !game.moddata_selected.empty()) {
-				std::string dataPathVal = "ModData/" + game.moddata_selected;
-				if (dataPathVal.find(' ') != std::string::npos)
-					dataPathVal = "\"" + dataPathVal + "\"";
-				argList.push_back("-dataPath " + dataPathVal);
-			}
-
 			std::string args;
 			for (size_t i = 0; i < argList.size(); ++i) {
 				if (i) args += ' ';
@@ -120,8 +116,15 @@ namespace Utils {
 			return args;
 		}
 
-		void PatchEAArgs(const std::string& args) {
+		static std::map<std::string, std::string> originalArgs;
+
+		void PatchEAArgs(const std::string& args, bool isGW2) {
 			fs::path eaDir = fs::path(getenv("LOCALAPPDATA")) / "Electronic Arts" / "EA Desktop";
+
+			std::string cleanedArgs = args;
+			if (!cleanedArgs.empty()) {
+				cleanedArgs.erase(std::remove(cleanedArgs.begin(), cleanedArgs.end(), '\"'), cleanedArgs.end());
+			}
 
 			for (const auto& entry : fs::directory_iterator(eaDir)) {
 				if (entry.is_regular_file() && entry.path().extension() == ".ini") {
@@ -135,7 +138,10 @@ namespace Utils {
 						if (line.rfind("user.gamecommandline.ofb-east:", 0) == 0) {
 							auto pos = line.find('=');
 							if (pos != std::string::npos) {
-								line = line.substr(0, pos + 1) + args;
+								if (originalArgs.find(entry.path().string()) == originalArgs.end()) {
+									originalArgs[entry.path().string()] = line.substr(pos + 1);
+								}
+								line = line.substr(0, pos + 1) + cleanedArgs;
 								modified = true;
 							}
 						}
@@ -149,6 +155,34 @@ namespace Utils {
 					}
 				}
 			}
+		}
+
+		void RestoreEAArgs() {
+			for (const auto& [filePath, originalValue] : originalArgs) {
+				std::ifstream in(filePath);
+				if (!in) continue;
+
+				std::string line, output;
+				bool modified = false;
+
+				while (std::getline(in, line)) {
+					if (line.rfind("user.gamecommandline.ofb-east:", 0) == 0) {
+						auto pos = line.find('=');
+						if (pos != std::string::npos) {
+							line = line.substr(0, pos + 1) + originalValue;
+							modified = true;
+						}
+					}
+					output += line + "\n";
+				}
+				in.close();
+
+				if (modified) {
+					std::ofstream out(filePath, std::ios::trunc);
+					out << output;
+				}
+			}
+			originalArgs.clear();
 		}
 
 		bool InjectDLL(DWORD processId, const std::string& dllPath) {
@@ -199,11 +233,41 @@ namespace Utils {
 			return true;
 		}
 
+		void KillProcessByName(const std::string& processName) {
+			HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+			if (snapshot == INVALID_HANDLE_VALUE) return;
+
+			PROCESSENTRY32 pe32;
+			pe32.dwSize = sizeof(PROCESSENTRY32);
+
+			if (Process32First(snapshot, &pe32)) {
+				do {
+					if (_stricmp(pe32.szExeFile, processName.c_str()) == 0) {
+						HANDLE hProcess = OpenProcess(PROCESS_TERMINATE, FALSE, pe32.th32ProcessID);
+						if (hProcess) {
+							TerminateProcess(hProcess, 0);
+							CloseHandle(hProcess);
+						}
+					}
+				} while (Process32Next(snapshot, &pe32));
+			}
+
+			CloseHandle(snapshot);
+		}
+
 		LaunchResult LaunchAndInject(const std::string& exePath,
 			const std::string& args,
-			bool injectDLL,
-			const std::string& dllName)
+			const std::string& dllName,
+			const std::string& modDataPath,
+			bool isGW2)
 		{
+			KillProcessByName("EADesktop.exe");
+			KillProcessByName("Origin.exe");
+			
+			if (isGW2) {
+				KillProcessByName("steam.exe");
+			}
+
 			LaunchResult lr;
 			STARTUPINFOA si = { sizeof(si) };
 			PROCESS_INFORMATION pi{};
@@ -212,21 +276,56 @@ namespace Utils {
 			std::vector<char> cmdLine(cmdLineStr.begin(), cmdLineStr.end());
 			cmdLine.push_back('\0');
 
-			BOOL ok = CreateProcessA(
-				nullptr, cmdLine.data(),
-				nullptr, nullptr, FALSE, 0, nullptr,
-				fs::path(exePath).parent_path().string().c_str(),
-				&si, &pi);
+			LPVOID envBlock = nullptr;
+			if (!modDataPath.empty()) {
+				std::string envVar = "GAME_DATA_DIR=" + modDataPath;
+				std::string envStr;
+				
+				LPCH envStrings = GetEnvironmentStringsA();
+				if (envStrings) {
+					LPCH p = envStrings;
+					while (*p) {
+						envStr += p;
+						envStr += '\0';
+						p += strlen(p) + 1;
+					}
+					FreeEnvironmentStringsA(envStrings);
+				}
+				
+				envStr += envVar;
+				envStr += '\0';
+				envStr += '\0';
+				
+				std::vector<char> envBuffer(envStr.begin(), envStr.end());
+				envBlock = envBuffer.data();
+				
+				BOOL ok = CreateProcessA(
+					nullptr, cmdLine.data(),
+					nullptr, nullptr, FALSE, 0, envBlock,
+					fs::path(exePath).parent_path().string().c_str(),
+					&si, &pi);
 
-			if (!ok) {
-				lr.error = "CreateProcess failed. Error: " + std::to_string(GetLastError());
-				return lr;
+				if (!ok) {
+					lr.error = "CreateProcess failed. Error: " + std::to_string(GetLastError());
+					return lr;
+				}
+			} else {
+				BOOL ok = CreateProcessA(
+					nullptr, cmdLine.data(),
+					nullptr, nullptr, FALSE, 0, nullptr,
+					fs::path(exePath).parent_path().string().c_str(),
+					&si, &pi);
+
+				if (!ok) {
+					lr.error = "CreateProcess failed. Error: " + std::to_string(GetLastError());
+					return lr;
+				}
 			}
 
 			lr.ok = true;
 			lr.pi = pi;
 
-			if (injectDLL) {
+			if (!isGW2) {
 				fs::path dllPath = fs::path(exePath).parent_path() / dllName;
 				if (!fs::exists(dllPath)) {
 					lr.error = dllName + " not found next to the game exe.";

@@ -29,9 +29,10 @@ namespace Utils {
 		};
 
 		std::string BuildArgs(const Config& cfg);
-		void PatchEAArgs(const std::string& args);
+		void PatchEAArgs(const std::string& args, bool isGW2);
+		void RestoreEAArgs();
 
-		LaunchResult LaunchAndInject(const std::string& exePath, const std::string& args, bool injectDLL, const std::string& dllName = "level_loader.dll");
+		LaunchResult LaunchAndInject(const std::string& exePath, const std::string& args, const std::string& dllName = "level_loader.dll", const std::string& modDataPath = "", bool isGW2 = false);
 		bool InjectDLL(DWORD processId, const std::string& dllPath);
 	}
 
