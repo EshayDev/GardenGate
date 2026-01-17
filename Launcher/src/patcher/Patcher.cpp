@@ -49,13 +49,17 @@ bool Patcher::AutoPatchGW2(const std::string& gamePath, const std::string& patch
     if (!Utils::FileUtil::copy(gamePath, backupExe, errorMessage)) return false;
 
     fs::path dllTarget = fs::path(gamePath).parent_path() / "dinput8.dll";
-    if (!Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage)) {
-        if (fs::exists(dllTarget)) {
-            std::string dllBackup = dllTarget.string() + ".old";
-            Utils::FileUtil::move_replace(dllTarget.string(), dllBackup, errorMessage);
-            Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage);
+    bool isSameFile = fs::equivalent(dllFile, dllTarget);
+
+    if (!isSameFile) {
+        if (!Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage)) {
+            if (fs::exists(dllTarget)) {
+                std::string dllBackup = dllTarget.string() + ".old";
+                Utils::FileUtil::move_replace(dllTarget.string(), dllBackup, errorMessage);
+                Utils::FileUtil::copy(dllFile, dllTarget.string(), errorMessage);
+            }
+            else return false;
         }
-        else return false;
     }
 
     std::string tempOutput = gamePath + PATCHED;
