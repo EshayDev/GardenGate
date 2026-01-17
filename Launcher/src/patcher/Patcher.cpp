@@ -75,6 +75,21 @@ bool Patcher::AutoPatchGW2(const std::string& gamePath, const std::string& patch
         return false;
     }
 
+    fs::path gameDir = fs::path(gamePath).parent_path();
+    fs::path eaAntiCheat = gameDir / "EAAntiCheat.GameServiceLauncher.exe";
+    if (fs::exists(eaAntiCheat)) {
+        std::string eaDisabled = eaAntiCheat.string() + DISABLED_DLL;
+        if (fs::exists(eaDisabled)) Utils::FileUtil::remove(eaDisabled);
+        Utils::FileUtil::move_replace(eaAntiCheat.string(), eaDisabled, errorMessage);
+    }
+
+    fs::path installScript = gameDir / "installScript.vdf";
+    if (fs::exists(installScript)) {
+        std::string scriptDisabled = installScript.string() + DISABLED_DLL;
+        if (fs::exists(scriptDisabled)) Utils::FileUtil::remove(scriptDisabled);
+        Utils::FileUtil::move_replace(installScript.string(), scriptDisabled, errorMessage);
+    }
+
     return true;
 }
 
@@ -87,13 +102,26 @@ bool Patcher::RestoreGW2(const std::string& gamePath, std::string& errorMessage)
 
     if (!Utils::FileUtil::copy(backupExe, gamePath, errorMessage)) return false;
 
-    fs::path dllPath = fs::path(gamePath).parent_path() / "dinput8.dll";
+    fs::path gameDir = fs::path(gamePath).parent_path();
+    fs::path dllPath = gameDir / "dinput8.dll";
     if (fs::exists(dllPath)) {
         std::string dllDisabled = dllPath.string() + DISABLED_DLL;
         if (fs::exists(dllDisabled)) Utils::FileUtil::remove(dllDisabled);
         if (!Utils::FileUtil::move_replace(dllPath.string(), dllDisabled, errorMessage)) {
             Utils::FileUtil::remove(dllPath.string());
         }
+    }
+
+    fs::path eaAntiCheat = gameDir / "EAAntiCheat.GameServiceLauncher.exe";
+    std::string eaDisabled = eaAntiCheat.string() + DISABLED_DLL;
+    if (fs::exists(eaDisabled)) {
+        Utils::FileUtil::move_replace(eaDisabled, eaAntiCheat.string(), errorMessage);
+    }
+
+    fs::path installScript = gameDir / "installScript.vdf";
+    std::string scriptDisabled = installScript.string() + DISABLED_DLL;
+    if (fs::exists(scriptDisabled)) {
+        Utils::FileUtil::move_replace(scriptDisabled, installScript.string(), errorMessage);
     }
 
     Utils::FileUtil::remove(backupExe);
