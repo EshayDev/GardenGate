@@ -2,6 +2,7 @@
 #include "Ui.hpp"
 #include "Config.hpp"
 #include "Utils.hpp"
+#include <windowsx.h>
 
 ID3D11Device* Renderer::pd3dDevice = nullptr;
 ID3D11DeviceContext* Renderer::pd3dDeviceContext = nullptr;
@@ -78,9 +79,43 @@ LRESULT WINAPI Renderer::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
             CreateRenderTarget();
         }
         return 0;
+
+        // shitty solution, will work on a better implementation.
+    case WM_NCHITTEST:
+    {
+        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+
+        RECT rcWindow;
+        ::GetWindowRect(hWnd, &rcWindow);
+
+        const int borderX = 8;
+        const int borderY = 8;
+
+        bool onLeft = pt.x >= rcWindow.left && pt.x < rcWindow.left + borderX;
+        bool onRight = pt.x < rcWindow.right && pt.x >= rcWindow.right - borderX;
+        bool onTop = pt.y >= rcWindow.top && pt.y < rcWindow.top + borderY;
+        bool onBottom = pt.y < rcWindow.bottom && pt.y >= rcWindow.bottom - borderY;
+
+        if (onTop && onLeft) return HTTOPLEFT;
+        if (onTop && onRight) return HTTOPRIGHT;
+        if (onBottom && onLeft) return HTBOTTOMLEFT;
+        if (onBottom && onRight) return HTBOTTOMRIGHT;
+        if (onTop) return HTTOP;
+        if (onBottom) return HTBOTTOM;
+        if (onLeft) return HTLEFT;
+        if (onRight) return HTRIGHT;
+
+        break;
+    }
+
+    case WM_NCCALCSIZE:
+        if (wParam == TRUE) return 0;
+        break;
+
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) return 0;
         break;
+
     case WM_DESTROY:
         ::PostQuitMessage(0);
         return 0;
@@ -93,7 +128,7 @@ void Renderer::Run()
     SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
     const int windowWidth = 770;
-    const int windowHeight = 640;
+    const int windowHeight = 680;
 
     int screenWidth = GetSystemMetrics(SM_CXSCREEN);
     int screenHeight = GetSystemMetrics(SM_CYSCREEN);
@@ -106,9 +141,12 @@ void Renderer::Run()
         "GardenGateClass", nullptr };
     ::RegisterClassEx(&wc);
 
-    HWND hwnd = ::CreateWindow(wc.lpszClassName, "Garden Gate Launcher",
-        WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS,
-        xPos, yPos, windowWidth, windowHeight, NULL, NULL, wc.hInstance, NULL);
+    HWND hwnd = CreateWindow(
+        wc.lpszClassName,
+        "Garden Gate Launcher",
+        WS_OVERLAPPEDWINDOW,
+        xPos, yPos, windowWidth, windowHeight,
+        NULL, NULL, wc.hInstance, NULL);
 
     if (!CreateDeviceD3D(hwnd))
     {
@@ -119,6 +157,9 @@ void Renderer::Run()
 
     ::ShowWindow(hwnd, SW_SHOWDEFAULT);
     ::UpdateWindow(hwnd);
+
+    ::SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, 
+        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();

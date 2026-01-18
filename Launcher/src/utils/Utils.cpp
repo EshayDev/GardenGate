@@ -19,34 +19,42 @@ namespace Utils {
 	namespace Registry {
 		bool IsSteamCopy(const std::string& exePath) {
 			if (exePath.empty()) return false;
-			
+
 			std::string lowerPath = exePath;
 			std::transform(lowerPath.begin(), lowerPath.end(), lowerPath.begin(), ::tolower);
-			
+
 			if (lowerPath.find("steamapps") != std::string::npos) {
 				return true;
 			}
-			
+
 			fs::path gameDir = fs::path(exePath).parent_path();
 			if (fs::exists(gameDir / "steam_appid.txt")) {
 				return true;
 			}
-			
+
 			return false;
 		}
-		
-		std::string GetGamePathFromRegistry(bool isGW2) {
+
+		std::string GetGamePathFromRegistry(int gameType) {
 			HKEY hKey = NULL;
 			LONG result = 0;
 			char pathBuffer[MAX_PATH] = { 0 };
 			DWORD bufferSize = MAX_PATH;
 
 			std::string regPath;
-			if (isGW2) {
+			if (gameType == 1) {
 				regPath = "SOFTWARE\\WOW6432Node\\PopCap\\Plants vs Zombies GW2";
 				result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, KEY_READ, &hKey);
 				if (result != ERROR_SUCCESS) {
 					regPath = "SOFTWARE\\PopCap\\Plants vs Zombies GW2";
+					result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, KEY_READ, &hKey);
+				}
+			}
+			else if (gameType == 2) {
+				regPath = "SOFTWARE\\WOW6432Node\\PopCap\\PVZ Battle for Neighborville";
+				result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, KEY_READ, &hKey);
+				if (result != ERROR_SUCCESS) {
+					regPath = "SOFTWARE\\PopCap\\PVZ Battle for Neighborville";
 					result = RegOpenKeyExA(HKEY_LOCAL_MACHINE, regPath.c_str(), 0, KEY_READ, &hKey);
 				}
 			}
@@ -72,14 +80,22 @@ namespace Utils {
 	}
 
 	namespace Dialog {
-		std::string BrowseForExe(HWND hwnd, bool isGW2) {
+		std::string BrowseForExe(HWND hwnd, int gameType) {
 			char pathBuffer[MAX_PATH] = "";
 			OPENFILENAMEA ofn = {};
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = hwnd;
-			ofn.lpstrFilter = isGW2 ?
-				"GW2 Executable\0GW2.Main_Win64_Retail.exe;*.exe\0All Files\0*.*\0" :
-				"GW1 Executable\0PVZ.Main_Win64_Retail.exe;*.exe\0All Files\0*.*\0";
+
+			if (gameType == 1) {
+				ofn.lpstrFilter = "GW2 Executable\0GW2.Main_Win64_Retail.exe;*.exe\0All Files\0*.*\0";
+			}
+			else if (gameType == 2) {
+				ofn.lpstrFilter = "BFN Executable\0PVZBattleforNeighborville.exe;*.exe\0All Files\0*.*\0";
+			}
+			else {
+				ofn.lpstrFilter = "GW1 Executable\0PVZ.Main_Win64_Retail.exe;*.exe\0All Files\0*.*\0";
+			}
+
 			ofn.lpstrFile = pathBuffer;
 			ofn.nMaxFile = MAX_PATH;
 			ofn.Flags = OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
@@ -106,6 +122,12 @@ namespace Utils {
 				value = buf;
 				if (strcmp(label, "Username:") == 0 && value.length() > 30) value.resize(30);
 			}
+		}
+
+		void CenteredText(const std::string& text, float windowWidth) {
+			float textWidth = ImGui::CalcTextSize(text.c_str()).x;
+			ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+			ImGui::TextUnformatted(text.c_str());
 		}
 
 		bool CenteredButton(const char* label, float width, float dpiScale) {
@@ -160,7 +182,7 @@ namespace Utils {
 		static std::map<std::string, std::string> originalArgs;
 		static const std::string kMissingMarker = "__GG__MISSING__";
 
-		void PatchEAArgs(const std::string& args, bool isGW2) {
+		void PatchEAArgs(const std::string& args, int gameType) {
 			fs::path eaDir = fs::path(getenv("LOCALAPPDATA")) / "Electronic Arts" / "EA Desktop";
 			const std::vector<std::string> gw1Keys = {
 				"user.gamecommandline.ofb-east:109551084",
@@ -171,7 +193,14 @@ namespace Utils {
 				"user.gamecommandline.origin.ofr.50.0001051",
 				"user.gamecommandline.origin.ofr.50.0000786"
 			};
-			const auto& keys = isGW2 ? gw2Keys : gw1Keys;
+			const std::vector<std::string> bfnKeys = {
+				"user.gamecommandline.origin.ofr.50.0002623",
+				"user.gamecommandline.origin.ofr.50.0003568",
+				"user.gamecommandline.origin.ofr.50.0003634",
+				"user.gamecommandline.origin.ofr.50.0003673"
+			};
+
+			const auto& keys = (gameType == 1) ? gw2Keys : (gameType == 2) ? bfnKeys : gw1Keys;
 
 			std::string cleanedArgs = args;
 			if (!cleanedArgs.empty()) {
@@ -336,11 +365,7 @@ namespace Utils {
 			CloseHandle(snapshot);
 		}
 
-		LaunchResult LaunchAndInject(const std::string& exePath,
-			const std::string& args,
-			const std::string& dllName,
-			const std::string& modDataPath,
-			bool isGW2)
+		LaunchResult LaunchAndInject(const std::string& exePath, const std::string& args, const std::string& dllName, const std::string& modDataPath, int gameType, const Config& cfg)
 		{
 			KillProcessByName("EADesktop.exe");
 			KillProcessByName("Origin.exe");
@@ -350,15 +375,130 @@ namespace Utils {
 				if (normalizedModDataPath.empty()) return;
 				if (!argStr.empty()) argStr += " ";
 				argStr += "-dataPath " + normalizedModDataPath;
-			};
-			
-			bool isSteamCopy = isGW2 && Registry::IsSteamCopy(exePath);
+				};
+
+			fs::path gameDir = fs::path(exePath).parent_path();
+
+			bool hasSteamAppId = fs::exists(gameDir / "steam_appid.txt");
+			bool hasInstaller = fs::exists(gameDir / "__Installer");
+			bool launchDirectly = cfg.launch_directly;
+
+			if (launchDirectly || (!hasSteamAppId && !hasInstaller)) {
+				STARTUPINFOA si = { sizeof(si) };
+				PROCESS_INFORMATION pi{};
+
+				std::string effectiveArgs = args;
+				if (gameType > 0) {
+					appendDataPathArg(effectiveArgs);
+				}
+
+				std::string cmdLineStr = "\"" + exePath + "\" " + effectiveArgs;
+				std::vector<char> cmdLine(cmdLineStr.begin(), cmdLineStr.end());
+				cmdLine.push_back('\0');
+
+				LPVOID envBlock = nullptr;
+				if (!normalizedModDataPath.empty() && gameType == 0) {
+					std::string envVarDir = "GAME_DATA_DIR=" + normalizedModDataPath;
+					std::string envStr;
+
+					LPCH envStrings = GetEnvironmentStringsA();
+					if (envStrings) {
+						LPCH p = envStrings;
+						while (*p) {
+							envStr += p;
+							envStr += '\0';
+							p += strlen(p) + 1;
+						}
+						FreeEnvironmentStringsA(envStrings);
+					}
+
+					envStr += envVarDir;
+					envStr += '\0';
+					envStr += '\0';
+
+					std::vector<char> envBuffer(envStr.begin(), envStr.end());
+					envBlock = envBuffer.data();
+
+					BOOL ok = CreateProcessA(
+						nullptr, cmdLine.data(),
+						nullptr, nullptr, FALSE, 0, envBlock,
+						gameDir.string().c_str(),
+						&si, &pi);
+
+					if (!ok) {
+						lr.error = "CreateProcess failed. Error: " + std::to_string(GetLastError());
+						return lr;
+					}
+				}
+				else {
+					BOOL ok = CreateProcessA(
+						nullptr, cmdLine.data(),
+						nullptr, nullptr, FALSE, 0, nullptr,
+						gameDir.string().c_str(),
+						&si, &pi);
+
+					if (!ok) {
+						lr.error = "CreateProcess failed. Error: " + std::to_string(GetLastError());
+						return lr;
+					}
+				}
+
+				lr.ok = true;
+				lr.pi = pi;
+
+				if (gameType == 0) {
+					fs::path dllPath = gameDir / dllName;
+					if (!fs::exists(dllPath)) {
+						lr.error = dllName + " not found next to the game exe.";
+						lr.ok = false;
+						return lr;
+					}
+
+					const wchar_t* Gw1Title = L"PVZ Garden Warfare";
+					DWORD pid = 0;
+					int waited = 0;
+					while (waited < 30000) {
+						HWND hwnd = FindWindowW(nullptr, Gw1Title);
+						if (hwnd) {
+							GetWindowThreadProcessId(hwnd, &pid);
+							if (pid) break;
+						}
+						Sleep(500);
+						waited += 500;
+					}
+
+					if (!pid) {
+						lr.error = "Timed out waiting for GW1 window.";
+						lr.ok = false;
+						return lr;
+					}
+
+					Sleep(4000);
+
+					if (!InjectDLL(pid, dllPath.string())) {
+						lr.error = "DLL injection into GW1 failed.";
+						lr.ok = false;
+						return lr;
+					}
+				}
+
+				return lr;
+			}
+
+			bool isSteamCopy = (gameType == 1 || gameType == 2) && hasSteamAppId;
 			if (isSteamCopy) {
 				KillProcessByName("steam.exe");
 				std::string launchArgs = args;
 				appendDataPathArg(launchArgs);
 
-				std::string steamUrl = "steam://rungameid/1922560";
+				std::string steamUrl;
+				if (gameType == 2) {
+					steamUrl = "steam://rungameid/1262240";
+				}
+				else {
+					steamUrl = "steam://rungameid/1922560";
+				}
+
 				if (!launchArgs.empty()) {
 					steamUrl += "//" + UrlEncode(launchArgs);
 				}
@@ -373,18 +513,20 @@ namespace Utils {
 				return lr;
 			}
 
-			bool hasInstaller = false;
-			if (isGW2 && !exePath.empty()) {
-				fs::path gameDir = fs::path(exePath).parent_path();
-				hasInstaller = fs::exists(gameDir / "__Installer");
-			}
-
-			if (isGW2 && hasInstaller) {
+			bool isOriginCopy = (gameType >= 1) && hasInstaller && !hasSteamAppId;
+			if (isOriginCopy) {
 				std::string launchArgs = args;
 				appendDataPathArg(launchArgs);
-				PatchEAArgs(launchArgs, isGW2);
+				PatchEAArgs(launchArgs, gameType);
 
-				std::string originUrl = "origin://launchgame/1026482";
+				std::string originUrl;
+				if (gameType == 2) {
+					originUrl = "origin://launchgame/194814";
+				}
+				else {
+					originUrl = "origin://launchgame/1026482";
+				}
+
 				HINSTANCE result = ShellExecuteA(nullptr, "open", originUrl.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
 
 				if ((INT_PTR)result <= 32) {
@@ -395,12 +537,12 @@ namespace Utils {
 				lr.ok = true;
 				return lr;
 			}
-			
-		STARTUPINFOA si = { sizeof(si) };
-		PROCESS_INFORMATION pi{};
+
+			STARTUPINFOA si = { sizeof(si) };
+			PROCESS_INFORMATION pi{};
 
 			std::string effectiveArgs = args;
-			if (isGW2) {
+			if (gameType > 0) {
 				appendDataPathArg(effectiveArgs);
 			}
 
@@ -409,10 +551,10 @@ namespace Utils {
 			cmdLine.push_back('\0');
 
 			LPVOID envBlock = nullptr;
-			if (!normalizedModDataPath.empty() && !isGW2) {
+			if (!normalizedModDataPath.empty() && gameType == 0) {
 				std::string envVarDir = "GAME_DATA_DIR=" + normalizedModDataPath;
 				std::string envStr;
-				
+
 				LPCH envStrings = GetEnvironmentStringsA();
 				if (envStrings) {
 					LPCH p = envStrings;
@@ -423,14 +565,14 @@ namespace Utils {
 					}
 					FreeEnvironmentStringsA(envStrings);
 				}
-				
+
 				envStr += envVarDir;
 				envStr += '\0';
 				envStr += '\0';
-				
+
 				std::vector<char> envBuffer(envStr.begin(), envStr.end());
 				envBlock = envBuffer.data();
-				
+
 				BOOL ok = CreateProcessA(
 					nullptr, cmdLine.data(),
 					nullptr, nullptr, FALSE, 0, envBlock,
@@ -441,7 +583,8 @@ namespace Utils {
 					lr.error = "CreateProcess failed. Error: " + std::to_string(GetLastError());
 					return lr;
 				}
-			} else {
+			}
+			else {
 				BOOL ok = CreateProcessA(
 					nullptr, cmdLine.data(),
 					nullptr, nullptr, FALSE, 0, nullptr,
@@ -457,7 +600,7 @@ namespace Utils {
 			lr.ok = true;
 			lr.pi = pi;
 
-			if (!isGW2) {
+			if (gameType == 0) {
 				fs::path dllPath = fs::path(exePath).parent_path() / dllName;
 				if (!fs::exists(dllPath)) {
 					lr.error = dllName + " not found next to the game exe.";
