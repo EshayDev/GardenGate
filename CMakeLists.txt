@@ -19,8 +19,8 @@ target_sources(${PROJECT_NAME} PRIVATE
 # ---- Includes ----
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"
-  "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/MinHook"
-  "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/imgui"
+  "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/MinHook"
+  "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/imgui"
 )
 
 # ---- Warnings ---- (Add back -Werror when those get fixed)
@@ -34,12 +34,12 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 if (MINGW)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     ws2_32
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/MinHook/minhook.x64.a"
+    "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/MinHook/minhook.x64.a"
   )
 elseif (MSVC)
   target_link_libraries(${PROJECT_NAME} PRIVATE
     ws2_32.lib
-    "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/MinHook/libMinHook-x64-v141-mt.lib"
+    "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/MinHook/libMinHook-x64-v141-mt.lib"
   )
 endif()
 

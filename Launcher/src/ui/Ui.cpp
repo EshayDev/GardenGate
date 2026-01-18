@@ -757,7 +757,7 @@ static void drawMiscTab(HWND hwnd, float dpiScale)
 	ImGui::PopStyleColor();
 	ImGui::Dummy(ImVec2(0, 10 * dpiScale));
 	if (Utils::UI::CenteredButton("GITHUB REPOSITORY", 220 * dpiScale, dpiScale)) {
-		ShellExecuteA(hwnd, "open", "https://github.com/nocss42/GardenGate/", NULL, NULL, SW_SHOWNORMAL);
+		ShellExecuteA(hwnd, "open", "https://github.com/nocss42/GardenGate", NULL, NULL, SW_SHOWNORMAL);
 	}
 	drawStatusMessage(dpiScale);
 }

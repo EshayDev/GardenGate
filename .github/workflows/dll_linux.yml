@@ -39,7 +39,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE=../toolchain-mingw64.cmake
           "
           cmake --build build-minhook
-          mv -f build-minhook/minhook.x64.a ThirdParty/MinHook
+          mv -f build-minhook/minhook.x64.a thirdparty/MinHook
           mkdir build-gg
           cd build-gg
           sh -c "
