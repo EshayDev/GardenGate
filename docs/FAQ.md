@@ -9,6 +9,9 @@ Yes it should. Please [see this](./LINUX.md)
 ### Does this work on console?
 No it doesn't.
 
+### Does progression work on this?
+No it doesn't. There aren't plans on fixing that as of writing this.
+
 ### I'm having issue X is this known?
 Check if it's been added to the what's not done part of [README](../README.md)
 
