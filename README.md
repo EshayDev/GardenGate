@@ -13,12 +13,12 @@ Experimental private servers for Plants vs. Zombies Garden Warfare 1 & 2
 * Custom unlocker mod that unlocks everything
 
 ### What's not done (TODO):
-* BFN support (launcher and server side)
-* Make launcher rename `EAAntiCheat.GameServiceLauncher.exe` & `installScript.vdf`
-* Custom color for launcher buttons
+* BFN support (launcher side)
 * Player kicking/moderation
+* Bot support for gw1
+* Custom color for launcher buttons/misc page
+* Make it so that only host can load into levels
 * [Closing a client](./Assets/client.webp) through the console instead of the game tricks the server into believing you are still connected, so attempting to load into another level causes the entire server to softlock
-* Make it so that only host can load into the backyard
 * Fix Zombopolis last, several doorways in the center area are blocked for clients. Host and bots can pass through, but clients and their objects (e.g. bean bombs) cannot.
 * Fix Zomburbia Zombot fuses on last point unable to be broken
 
