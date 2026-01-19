@@ -7,7 +7,7 @@
 ### Garden warfare 1
 [UnlockAll](../Mods/gw1/UnlockAll.fbmod)
 
-# If you own bfn on EA App and you want to switch back to official servers, instead of the revert button on the launcher use the repair button on the EA App itself and remove `dinput8.dll` from game directory. (we're looking into this)
+## If you own bfn on EA App and you want to switch back to official servers, instead of the revert button on the launcher use the repair button on the EA App itself and remove `dinput8.dll` from game directory. (we're looking into this)
 
 ### Garden warfare 2/Battle for Neighborville
 [GardenGate.fbpack](../Mods/gw2/GardenGate.fbpack)

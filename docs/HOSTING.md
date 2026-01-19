@@ -36,7 +36,7 @@ Put the one of your choice to game's directory and name it as `level_loader.dll`
 
 5. Host any map of your choice through the multiplayer portal
 
-# If you own bfn on EA App and you want to switch back to official servers, instead of the revert button on the launcher use the repair button on the EA App itself and remove `dinput8.dll` from game directory. (we're looking into this)
+## If you own bfn on EA App and you want to switch back to official servers, instead of the revert button on the launcher use the repair button on the EA App itself and remove `dinput8.dll` from game directory. (we're looking into this)
 
 ### Battle for Neighborville
 
