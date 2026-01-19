@@ -1,6 +1,6 @@
 # Joining
 
-# If you own gw2 or bfn on EA App your files might get verified the moment you restart the app. Run the launcher as administrator patch your game, pass in the arguements yourself and press launch from the ea app itself (we're looking into this)
+# If you own bfn on EA App and you want to switch back to official servers, instead of the revert button on the launcher use the repair button on the EA App itself and remove `dinput8.dll` from game directory. (we're looking into this)
 
 1. Download the archive from [releases](https://github.com/nocss42/GardenGate/releases) 
 
