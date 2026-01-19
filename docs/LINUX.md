@@ -10,7 +10,7 @@
 Download the archive from [the releases](https://github.com/nocss42/GardenGate/releases) tab, launch it > go to patcher and press apply patch
 
 ### 3. Install the mods
-Use [this gw1 compatible frosty mod manager](https://github.com/Twig6943/FrostyToolsuiteGW1Linux/releases) instead of the stock one as the stock one doesn't work with wine nor gw1. Get the mods from [here](../Mods/GW1)
+Use [this gw1 compatible frosty mod manager](https://github.com/Twig6943/FrostyToolsuiteGW1Linux/releases) instead of the stock one as the stock one doesn't work with wine nor gw1. Get the mods from [here](../Mods/gw1)
 
 ### 4. Configure data dir env var & dlloverrides
 Use `GAME_DATA_DIR` environment variable as ea app won't allow special characters like `/` as launch args
@@ -41,7 +41,7 @@ winmm
 Download the archive from [the releases](https://github.com/nocss42/GardenGate/releases) tab, launch it > go to patcher and press apply patch
 
 ### 3. Install the mods in the right order
-Use [this frosty mod manager](https://github.com/maniman303/FrostyToolsuite/releases) instead of the stock one as the stock one doesn't work with wine. Get the mods for gw2 [here](../Mods/GW2/GardenGate.fbpack)
+Use [this frosty mod manager](https://github.com/maniman303/FrostyToolsuite/releases) instead of the stock one as the stock one doesn't work with wine. Get the mods for gw2 [here](../Mods/gw2/GardenGate.fbpack)
 
 <img src="./Assets/load_order.webp" />
 

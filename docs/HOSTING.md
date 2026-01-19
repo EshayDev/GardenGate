@@ -8,7 +8,7 @@
 
 2. Install the following mods;
 
-[UnlockAll](../Mods/GW1/UnlockAll.fbmod)
+[UnlockAll](../Mods/gw1/UnlockAll.fbmod)
 
 3. Open up the launcher go to patcher and press auto detect > patch (keep the ip section empty)
 
@@ -28,7 +28,7 @@ Put the one of your choice to game's directory and name it as `level_loader.dll`
 
 1. Download the archive from [releases](https://github.com/nocss42/GardenGate/releases) 
 
-2. Download the FBPACK from the repository [here](../Mods/GW2/GardenGate.fbpack)
+2. Download the FBPACK from the repository [here](../Mods/gw2/GardenGate.fbpack)
 
 3. Import the FBPack in Frosty Mod Manager, the load order should be something like this;
 

@@ -7,10 +7,10 @@
 2. Install the following mods for best experience
 
 ### Garden warfare 1
-[UnlockAll](../Mods/GW1/UnlockAll.fbmod)
+[UnlockAll](../Mods/gw1/UnlockAll.fbmod)
 
 ### Garden warfare 2
-[GardenGate.fbpack](../Mods/GW2/GardenGate.fbpack)
+[GardenGate.fbpack](../Mods/gw2/GardenGate.fbpack)
 
 Import the FBPack in Frosty Mod Manager, the load order should be something like this;
 
