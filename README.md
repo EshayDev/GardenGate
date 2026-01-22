@@ -10,13 +10,11 @@ Experimental private servers for Plants vs. Zombies Garden Warfare 1,2 & Battle 
 * Offsets
 * Hosting servers
 * Joining
-* Custom unlocker mod that unlocks everything
+* Unlockers that unlock everything
 
 ### What's not done (TODO):
 * Player kicking/moderation
 * Bot support for gw1
-* Bfn [splitscreen fix without frosty](https://github.com/nocss42/GardenGate/pull/9)
-* Bfn unlockall
 * Make it so that only host can load into levels
 * [Closing a client](./Assets/client.webp) through the console instead of the game tricks the server into believing you are still connected, so attempting to load into another level causes the entire server to softlock
 * Fix Zombopolis last, several doorways in the center area are blocked for clients. Host and bots can pass through, but clients and their objects (e.g. bean bombs) cannot.
